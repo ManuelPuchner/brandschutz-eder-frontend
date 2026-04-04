@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/spring/:path*",
+      "destination": "${BACKEND_URL}/:path*"
+    }
+  ]
+}
