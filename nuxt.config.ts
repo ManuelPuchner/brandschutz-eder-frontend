@@ -28,10 +28,11 @@ export default defineNuxtConfig({
   },
 
   nitro: {
-    devProxy: {
-      "/spring": {
-        target: process.env.SPRING_BACKEND_URL + "/api" || "http://localhost:8080/api",
-        changeOrigin: true,
+    routeRules: {
+      "/spring/**": {
+        proxy:
+          (process.env.SPRING_BACKEND_URL || "http://localhost:8080") +
+          "/api/**",
       },
     },
   },
