@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { deleteCustomer, useCustomers } from "~/services/customer-service";
 import type { TableColumn } from "@nuxt/ui";
 import type { Customer } from "~/types/customer";
 import CustomerModalForm from "~/components/admin/customers/CustomerModalForm.vue";
 import countries from "i18n-iso-countries";
 import deLocale from "i18n-iso-countries/langs/de.json";
 import CustomerMap from "~/components/admin/customers/CustomerMap.vue";
+import { useCustomersData, customerActions } from "~/services/customer-service";
 
 countries.registerLocale(deLocale);
 
 definePageMeta({ layout: "admin" });
 
-const { data: customers } = await useCustomers();
+const { data: customers } = await useCustomersData();
 
 const columns: TableColumn<Customer>[] = [
   { accessorKey: "id", header: "#" },
@@ -27,7 +27,7 @@ async function onDelete(customerId: number) {
   const oldCustomers = customers.value || [];
   try {
     customers.value = oldCustomers.filter((c) => c.id !== customerId);
-    await deleteCustomer(customerId);
+    await customerActions.delete(customerId);
   } catch (error) {
     console.error("Error occurred while deleting customer:", error);
     customers.value = oldCustomers;

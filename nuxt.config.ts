@@ -27,6 +27,15 @@ export default defineNuxtConfig({
     },
   },
 
+  runtimeConfig: {
+    // Server-only (NUXT_BACKEND_URL)
+    backendUrl: '', 
+    public: {
+      // Client & Server (NUXT_PUBLIC_API_BASE)
+      apiBase: '' 
+    }
+  },
+
   nitro: {
     devProxy: {
       "/spring": {

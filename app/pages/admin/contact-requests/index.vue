@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import ContactRequestSideEntry from "~/components/admin/contact-requests/ContactRequestSideEntry.vue";
 import {
-  useContactRequests,
-  useUpdateContactRequestStatus,
+  contactActions,
+  useContactRequestsData,
 } from "~/services/contact-request-service";
 import type { ContactRequest } from "~/types/contact";
 
@@ -10,7 +10,7 @@ definePageMeta({ layout: "admin", name: "Kontaktanfragen" });
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 
-const { data: rawRequests } = await useContactRequests();
+const { data: rawRequests } = await useContactRequestsData();
 const requests = ref<ContactRequest[]>(rawRequests.value ?? []);
 const selectedRequest = ref<ContactRequest | null>(null);
 
@@ -60,7 +60,7 @@ async function updateStatus(
   replaceRequest(index, { status }); // optimistic update
 
   try {
-    await useUpdateContactRequestStatus(request.id, status);
+    await contactActions.updateStatus(request.id, status);
   } catch (err) {
     console.error("Failed to update contact request status:", err);
     replaceRequest(index, { status: previousStatus }); // revert on failure

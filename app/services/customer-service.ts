@@ -1,28 +1,28 @@
 import type { Customer, CustomerCreate } from "~/types/customer";
 
-export async function useCustomers() {
-  return useFetch<Customer[]>("/spring/customers", {
-    method: "GET",
-    server: false,
-  });
-}
+// ACTIONS: Use plain functions with $api
+export const customerActions = {
+  async create(customer: CustomerCreate) {
+    const { $api } = useNuxtApp();
+    return $api<Customer>("/customers", { method: "POST", body: customer });
+  },
+  async update(id: number, customer: CustomerCreate) {
+    const { $api } = useNuxtApp();
+    return $api<Customer>(`/customers/${id}`, { method: "PUT", body: customer });
+  },
+  async delete(id: number) {
+    const { $api } = useNuxtApp();
+    return $api<boolean>(`/customers/${id}`, { method: "DELETE" });
+  }
+};
 
-export async function createCustomer(customer: CustomerCreate): Promise<Customer> {
-  return $fetch<Customer>("/spring/customers", {
-    method: "POST",
-    body: JSON.stringify(customer),
-  });
-}
+// DATA FETCHING: Use a proper Composable pattern
+export const useCustomerData = (id: number) => {
+  const { $api } = useNuxtApp();
+  return useAsyncData(`customer:${id}`, () => $api<Customer>(`/customers/${id}`));
+};
 
-export async function deleteCustomer(customerId: number): Promise<Boolean> {
-  return $fetch<Boolean>(`/spring/customers/${customerId}`, {
-    method: "DELETE",
-  });
-}
-
-export async function updateCustomer(customerId: number, customer: CustomerCreate): Promise<Customer> {
-  return $fetch<Customer>(`/spring/customers/${customerId}`, {
-    method: "PUT",
-    body: JSON.stringify(customer),
-  });
-}
+export const useCustomersData = () => {
+  const { $api } = useNuxtApp();
+  return useAsyncData('customers', () => $api<Customer[]>("/customers"));
+};

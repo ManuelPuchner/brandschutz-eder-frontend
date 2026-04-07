@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import * as z from "zod";
-import { createCustomer, updateCustomer } from "~/services/customer-service";
+import { customerActions } from "~/services/customer-service";
 import countries from "i18n-iso-countries";
 import deLocale from "i18n-iso-countries/langs/de.json";
 
@@ -77,14 +77,14 @@ async function onSubmit() {
     const validatedData = schema.parse(state);
 
     if (isEditMode.value && props.customer) {
-      const updatedCustomer = await updateCustomer(
+      const updatedCustomer = await customerActions.update(
         Number(props.customer.id),
         validatedData,
       );
       console.log("Customer updated:", updatedCustomer);
       emit("customer-updated", updatedCustomer);
     } else {
-      const createdCustomer = await createCustomer(validatedData);
+      const createdCustomer = await customerActions.create(validatedData);
       emit("customer-created", createdCustomer);
     }
 

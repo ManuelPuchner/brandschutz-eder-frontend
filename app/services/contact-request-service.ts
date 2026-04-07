@@ -1,16 +1,23 @@
 import type { ContactRequest } from "~/types/contact";
 
-export async function useContactRequests() {
-  return await useFetch<ContactRequest[]>("/spring/contact-requests", {
-    method: "GET",
-    server: false,
-  });
-}
+// ACTIONS: Plain functions for state-changing operations
+export const contactActions = {
+  async updateStatus(id: number, status: ContactRequest["status"]) {
+    const { $api } = useNuxtApp();
+    
+    // $api (ofetch) supports a 'query' object, so no need for URLSearchParams manually
+    return await $api(`/contact-requests/${id}`, {
+      method: "PATCH",
+      query: { status } 
+    });
+  }
+};
 
-export async function useUpdateContactRequestStatus(id: number, status: ContactRequest["status"]) {
-  const payload = { status };
-  const params = new URLSearchParams(payload as Record<string, string>);
-  return await $fetch(`/spring/contact-requests/${id}?${params}`, {
-    method: "PATCH"
-  });
-}
+// DATA FETCHING: A proper Composable to prevent "Incompatible options" errors
+export const useContactRequestsData = () => {
+  const { $api } = useNuxtApp();
+  
+  return useAsyncData('contact-requests', () => 
+    $api<ContactRequest[]>("/contact-requests")
+  );
+};
