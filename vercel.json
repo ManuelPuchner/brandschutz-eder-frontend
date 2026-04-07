@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/spring/:path*",
-      "destination": "https://brandschutz-eder-backend.onrender.com/api/:path*"
+      "destination": "https://brandschutz-eder-backend.manuelpuchner.duckdns.org/api/:path*"
     }
   ]
 }
