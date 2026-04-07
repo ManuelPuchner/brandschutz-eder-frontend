@@ -38,12 +38,6 @@ function replaceRequest(index: number, patch: Partial<ContactRequest>) {
 }
 
 // ── Actions ───────────────────────────────────────────────────────────────────
-
-function selectRequest(request: ContactRequest) {
-  selectedRequest.value = request;
-  updateStatus(request, "READ");
-}
-
 async function updateStatus(
   request: ContactRequest,
   status: ContactRequest["status"],
@@ -61,6 +55,16 @@ async function updateStatus(
     console.error("Failed to update contact request status:", err);
     replaceRequest(index, { status: previousStatus }); // revert on failure
   }
+}
+
+function selectRequest(request: ContactRequest) {
+  selectedRequest.value = request;
+  updateStatus(request, "READ");
+}
+
+function archiveRequest(request: ContactRequest) {
+  selectedRequest.value = null;
+  updateStatus(request, "ARCHIVED");
 }
 </script>
 
@@ -97,6 +101,18 @@ async function updateStatus(
   >
     <template #header>
       <UDashboardNavbar :title="selectedRequest.name">
+        <template #right>
+          <UButton
+            size="xl"
+            color="neutral"
+            variant="ghost"
+            class="p-2"
+            @click="archiveRequest(selectedRequest)"
+          >
+            <UIcon name="i-lucide-archive" />
+            Archivieren
+          </UButton>
+        </template>
         <template #leading>
           <UButton
             size="xl"
