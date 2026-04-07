@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { useCustomerData } from '~/services/customer-service';
-
-
 definePageMeta({ layout: "admin" });
 
 const route = useRoute();
 const customerId = Number(route.params.id);
+
+const { useCustomerData, customerActions } = useCustomer();
 
 const { data: customer, error } = await useCustomerData(customerId);
 
@@ -22,8 +21,8 @@ const { data: customer, error } = await useCustomerData(customerId);
     </template>
 
     <template #body>
-        <p>Customer ID: {{ customerId }}</p>
         <p v-if="error">Error loading customer: {{ error.message }}</p>
+
         <div v-else-if="customer">
             <h2>{{ customer.name }}</h2>
             <p>Address: {{ customer.address }}</p>

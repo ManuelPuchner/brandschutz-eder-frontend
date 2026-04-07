@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useContactForm } from "./useContactForm";
 import ContactFormTemplate from "./ContactFormTemplate.vue";
 
 const {

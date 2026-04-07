@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import * as z from "zod";
-import { customerActions } from "~/services/customer-service";
 import countries from "i18n-iso-countries";
 import deLocale from "i18n-iso-countries/langs/de.json";
 
@@ -13,6 +12,8 @@ const countryOptions = Object.entries(
 }));
 
 const defaultCountry = "AT";
+
+const { customerActions } = useCustomer();
 
 const schema = z.object({
   name: z.string().min(1, "Name is required"),

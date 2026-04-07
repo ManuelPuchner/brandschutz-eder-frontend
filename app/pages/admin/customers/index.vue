@@ -5,11 +5,12 @@ import CustomerModalForm from "~/components/admin/customers/CustomerModalForm.vu
 import countries from "i18n-iso-countries";
 import deLocale from "i18n-iso-countries/langs/de.json";
 import CustomerMap from "~/components/admin/customers/CustomerMap.vue";
-import { useCustomersData, customerActions } from "~/services/customer-service";
 
 countries.registerLocale(deLocale);
 
 definePageMeta({ layout: "admin" });
+
+const { useCustomersData, customerActions } = useCustomer();
 
 const { data: customers } = await useCustomersData();
 

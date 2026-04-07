@@ -3,6 +3,7 @@ import type { ContactRequest } from "~/types/contact";
 import { submitContactRequest } from "~/services/contact-service";
 
 export function useContactForm() {
+  const { contactActions } = useContactRequest();
   const contactForm = reactive<Omit<ContactRequest, "id">>({
       name: "",
       email: "",
@@ -63,7 +64,7 @@ export function useContactForm() {
     }
 
     try {
-      const result = await submitContactRequest(contactForm);
+      const result = await contactActions.create(contactForm);
 
       if (!result || (result as any).success === false) {
         throw new Error((result as any)?.message || "Unbekannter Serverfehler");
