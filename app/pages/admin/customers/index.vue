@@ -5,6 +5,7 @@ import type { Customer } from "~/types/customer";
 import CustomerModalForm from "~/components/admin/customers/CustomerModalForm.vue";
 import countries from "i18n-iso-countries";
 import deLocale from "i18n-iso-countries/langs/de.json";
+import CustomerMap from "~/components/admin/customers/CustomerMap.vue";
 
 countries.registerLocale(deLocale);
 
@@ -49,6 +50,8 @@ async function onEditComplete(updatedCustomer: Customer) {
 function onCustomerCreated(newCustomer: Customer) {
   customers.value = [newCustomer, ...(customers.value || [])];
 }
+
+const isMapView = ref(false);
 </script>
 
 <template>
@@ -63,11 +66,24 @@ function onCustomerCreated(newCustomer: Customer) {
 
     <template #body>
       <div class="flex flex-col flex-1 w-full">
-        <div class="flex px-4 py-3.5 border-b border-accented justify-end">
+        <div
+          class="flex px-4 py-3.5 gap-4 border-b border-accented justify-end"
+        >
+          <UButton
+            :icon="isMapView ? 'i-lucide-table' : 'i-lucide-map'"
+            color="neutral"
+            variant="outline"
+            @click="isMapView = !isMapView"
+            aria-label="Toggle view"
+          />
           <CustomerModalForm @customer-created="onCustomerCreated" />
         </div>
-
-        <UTable :data="customers" :columns="columns" class="flex-1">
+        <UTable
+          v-if="!isMapView"
+          :data="customers"
+          :columns="columns"
+          class="flex-1"
+        >
           <!-- ID cell -->
           <template #id-cell="{ row }"> #{{ row.getValue("id") }} </template>
 
@@ -113,6 +129,11 @@ function onCustomerCreated(newCustomer: Customer) {
             </div>
           </template>
         </UTable>
+
+        <CustomerMap
+          v-if="customers && isMapView"
+          :customers="customers"
+        ></CustomerMap>
       </div>
 
       <CustomerModalForm
