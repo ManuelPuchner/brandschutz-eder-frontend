@@ -101,7 +101,7 @@ const isMapView = ref(false);
 
           <!-- Actions cell -->
           <template #actions-cell="{ row }">
-            <div class="flex justify-end">
+            <div class="flex justify-end items-center">
               <UDropdownMenu
                 :content="{ align: 'end' }"
                 :items="[
@@ -125,6 +125,24 @@ const isMapView = ref(false);
                   color="neutral"
                   variant="ghost"
                   aria-label="Actions dropdown"
+                />
+
+                <UButton
+                  :href="`/admin/customers/${row.original.id}`"
+                  icon="i-lucide-eye"
+                  color="neutral"
+                  variant="ghost"
+                  aria-label="View customer details"
+                />
+
+                <!-- navigate -->
+                <UButton
+                  :href="`https://www.google.com/maps/search/?api=1&query=${row.original.lat},${row.original.lon}`"
+                  target="_blank"
+                  icon="i-lucide-map"
+                  color="neutral"
+                  variant="ghost"
+                  aria-label="Navigate to customer location"
                 />
               </UDropdownMenu>
             </div>

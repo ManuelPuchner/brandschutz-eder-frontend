@@ -18,6 +18,7 @@ const { customerActions } = useCustomer();
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
   address: z.string().min(1, "Address is required"),
+  city: z.string().min(1, "City is required"),
   postalcode: z.string().min(1, "Postal code is required"),
   country: z.string().min(1, "Country is required"),
   phone: z.string().min(1, "Phone number is required"),
@@ -38,6 +39,7 @@ const isEditMode = computed(() => !!props.customer);
 const state = reactive<Partial<Schema>>({
   name: "",
   address: "",
+  city: "",
   postalcode: "",
   country: defaultCountry,
   phone: "",
@@ -54,6 +56,7 @@ watch(
     if (customer) {
       state.name = customer.name;
       state.address = customer.address;
+      state.city = customer.city;
       state.postalcode = customer.postalcode;
       state.country = customer.country;
       state.phone = customer.phone;
@@ -101,6 +104,7 @@ async function onSubmit() {
 function resetForm() {
   state.name = "";
   state.address = "";
+  state.city = "";
   state.postalcode = "";
   state.country = defaultCountry;
   state.phone = "";
@@ -139,9 +143,12 @@ function resetForm() {
         <UFormField name="name" label="Name">
           <UInput v-model="state.name" placeholder="Name" class="w-full" />
         </UFormField>
-        <div class="grid grid-cols-1 md:grid-cols-2 md:gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 md:gap-4">
           <UFormField name="address" label="Address">
             <UInput v-model="state.address" placeholder="Address" class="w-full" />
+          </UFormField>
+          <UFormField name="city" label="City">
+            <UInput v-model="state.city" placeholder="City" class="w-full" />
           </UFormField>
           <UFormField name="postalcode" label="Postal Code">
             <UInput v-model="state.postalcode" placeholder="Postal Code" class="w-full" />

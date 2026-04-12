@@ -1,6 +1,7 @@
 export interface Customer {
   id: number;
   address: string;
+  city: string;
   postalcode: string;
   country: string;
 

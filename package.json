@@ -15,6 +15,7 @@
     "@iconify-json/simple-icons": "^1.2.75",
     "@nuxt/ui": "^4.6.0",
     "i18n-iso-countries": "^7.14.0",
+    "libphonenumber-js": "^1.12.41",
     "nuxt": "^4.4.2",
     "nuxt-maplibre": "^1.2.2",
     "tailwindcss": "^4.2.2",

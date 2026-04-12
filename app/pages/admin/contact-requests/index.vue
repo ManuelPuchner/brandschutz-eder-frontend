@@ -1,70 +1,106 @@
 <script setup lang="ts">
 import ContactRequestSideEntry from "~/components/admin/contact-requests/ContactRequestSideEntry.vue";
 import type { ContactRequest } from "~/types/contact";
+
 definePageMeta({ layout: "admin", name: "Kontaktanfragen" });
 
-// ── Data ─────────────────────────────────────────────────────────────────────
+// ── Data & State ─────────────────────────────────────────────────────────────
 
 const { useContactRequestsData, contactActions } = useContactRequest();
 const { data: rawRequests } = await useContactRequestsData();
+
 const requests = ref<ContactRequest[]>(rawRequests.value ?? []);
 const selectedRequest = ref<ContactRequest | null>(null);
 
-watch(
-  rawRequests,
-  (val) => {
-    if (val) requests.value = val;
-  },
-  { immediate: true },
-);
+/**
+ * Status priority weight. 
+ * Higher number = Higher in the list (Descending).
+ */
+const STATUS_WEIGHTS: Record<ContactRequest["status"], number> = {
+  NEW: 3,
+  READ: 2,
+  ARCHIVED: 1,
+};
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── Computed ─────────────────────────────────────────────────────────────────
 
-function findRequestIndex(id: ContactRequest["id"]): number {
-  return requests.value.findIndex((r) => r.id === id);
-}
+/**
+ * Optimistic Sorting: Mirrors Spring Boot's:
+ * Sort.by("status").descending().and(Sort.by("createdAt").descending())
+ */
+const sortedRequests = computed(() => {
+  return [...requests.value].sort((a, b) => {
+    // 1. Sort by Status weight
+    const weightA = STATUS_WEIGHTS[a.status] ?? 0;
+    const weightB = STATUS_WEIGHTS[b.status] ?? 0;
+    const statusDiff = weightB - weightA;
+    
+    if (statusDiff !== 0) return statusDiff;
 
-function replaceRequest(index: number, patch: Partial<ContactRequest>) {
-  if (index === -1) return;
+    // 2. Sort by Date (Newest first)
+    // FIX: Provide a fallback string if createdAt is undefined to satisfy the Date constructor
+    const dateA = new Date(a.createdAt ?? 0).getTime();
+    const dateB = new Date(b.createdAt ?? 0).getTime();
+    return dateB - dateA;
+  });
+});
 
-  requests.value[index] = {
-    ...requests.value[index],
-    ...patch,
-  } as ContactRequest;
-
-  if (selectedRequest.value?.id === requests.value[index].id) {
-    selectedRequest.value = requests.value[index];
-  }
-}
+watch(rawRequests, (val) => {
+  if (val) requests.value = val;
+}, { immediate: true });
 
 // ── Actions ───────────────────────────────────────────────────────────────────
+
+/**
+ * Updates a request in the local state array.
+ */
+function updateLocalRequest(id: number, patch: Partial<ContactRequest>) {
+  requests.value = requests.value.map((r) => {
+    if (r.id === id) {
+      // Cast to 'any' then back to 'ContactRequest' is a common shortcut 
+      // when patching strictly typed objects, or use the explicit spread:
+      const updated: ContactRequest = { ...r, ...patch } as ContactRequest;
+      
+      if (selectedRequest.value?.id === id) {
+        selectedRequest.value = updated;
+      }
+      return updated;
+    }
+    return r;
+  });
+}
+
 async function updateStatus(
   request: ContactRequest,
-  status: ContactRequest["status"],
+  newStatus: ContactRequest["status"]
 ) {
-  if (request.status === status) return;
+  if (request.status === newStatus || !request.id) return;
 
-  const index = findRequestIndex(request.id);
   const previousStatus = request.status;
 
-  replaceRequest(index, { status }); // optimistic update
+  // 1. Optimistic Update
+  updateLocalRequest(request.id, { status: newStatus });
 
+  // 2. Backend Sync
   try {
-    await contactActions.updateStatus(request.id, status);
+    await contactActions.updateStatus(request.id, newStatus);
   } catch (err) {
-    console.error("Failed to update contact request status:", err);
-    replaceRequest(index, { status: previousStatus }); // revert on failure
+    console.error("Failed to update status:", err);
+    // 3. Revert on failure
+    updateLocalRequest(request.id, { status: previousStatus });
   }
 }
 
 function selectRequest(request: ContactRequest) {
   selectedRequest.value = request;
-  updateStatus(request, "READ");
+  if (request.status === "NEW") {
+    updateStatus(request, "READ");
+  }
 }
 
 function archiveRequest(request: ContactRequest) {
-  selectedRequest.value = null;
   updateStatus(request, "ARCHIVED");
+  selectedRequest.value = null;
 }
 </script>
 
@@ -81,77 +117,89 @@ function archiveRequest(request: ContactRequest) {
     <template #body>
       <div class="divide-y divide-default">
         <div
-          v-for="(_, index) in requests"
-          :key="(requests[index] as ContactRequest).id"
-          @click="selectRequest(requests[index] as ContactRequest)"
+          v-for="request in sortedRequests"
+          :key="request.id"
+          class="cursor-pointer transition-colors"
+          :class="[
+            selectedRequest?.id === request.id 
+              ? 'bg-primary-50 dark:bg-primary-950/20' 
+              : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
+          ]"
+          @click="selectRequest(request)"
         >
-          <ContactRequestSideEntry
-            :request="requests[index] as ContactRequest"
-          ></ContactRequestSideEntry>
+          <ContactRequestSideEntry :request="request" />
         </div>
       </div>
     </template>
   </UDashboardPanel>
 
-  <!-- Detail panel -->
   <UDashboardPanel
-    resizable
     v-if="selectedRequest"
-    :title="selectedRequest.name"
+    resizable
+    class="flex-1"
   >
     <template #header>
       <UDashboardNavbar :title="selectedRequest.name">
-        <template #right>
-          <UButton
-            size="xl"
-            color="neutral"
-            variant="ghost"
-            class="p-2"
-            @click="archiveRequest(selectedRequest)"
-          >
-            <UIcon name="i-lucide-archive" />
-            Archivieren
-          </UButton>
-        </template>
         <template #leading>
           <UButton
-            size="xl"
+            icon="i-lucide-x"
             color="neutral"
             variant="ghost"
-            class="p-2"
             @click="selectedRequest = null"
-          >
-            <UIcon name="i-lucide-x" />
-          </UButton>
+          />
+        </template>
+        <template #right>
+          <UButton
+            icon="i-lucide-archive"
+            label="Archivieren"
+            color="neutral"
+            variant="ghost"
+            @click="archiveRequest(selectedRequest)"
+          />
         </template>
       </UDashboardNavbar>
     </template>
 
     <template #body>
-      <div class="space-y-4">
-        <UUser
-          :name="selectedRequest.name"
-          :description="selectedRequest.email"
-          :avatar="{
-            src: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-              selectedRequest.name,
-            )}&background=random&color=fff&size=128`,
-            color: 'primary',
+      <div class="p-6 space-y-6">
+        <div class="flex items-center gap-4">
+          <UAvatar
+            :src="`https://ui-avatars.com/api/?name=${encodeURIComponent(selectedRequest.name ?? 'Guest')}&background=random&color=fff`"
+            size="xl"
+          />
+          <div>
+            <h2 class="text-xl font-bold">{{ selectedRequest.name }}</h2>
+            <p class="text-sm text-gray-500">{{ selectedRequest.email }}</p>
+          </div>
+        </div>
 
-            fallback: selectedRequest.name.charAt(0).toUpperCase(),
-          }"
-          size="3xl"
-        ></UUser>
-        <p><strong>Phone:</strong> {{ selectedRequest.phone }}</p>
-        <p><strong>Company:</strong> {{ selectedRequest.company }}</p>
-        <p><strong>Message:</strong></p>
-        <p class="whitespace-pre-wrap">{{ selectedRequest.message }}</p>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Phone</span>
+            <p class="mt-1">{{ selectedRequest.phone || '—' }}</p>
+          </div>
+          <div>
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Company</span>
+            <p class="mt-1">{{ selectedRequest.company || '—' }}</p>
+          </div>
+        </div>
+
+        <USeparator />
+
+        <div>
+          <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Message</span>
+          <p class="mt-3 whitespace-pre-wrap leading-relaxed text-gray-700 dark:text-gray-300">
+            {{ selectedRequest.message }}
+          </p>
+        </div>
       </div>
     </template>
   </UDashboardPanel>
 
-  <!-- Empty state -->
-  <UDashboardPanel v-else class="flex items-center justify-center">
-    <p class="text-muted">Select a contact request to view details</p>
+  <UDashboardPanel v-else class="flex items-center justify-center flex-1">
+    <div class="text-center opacity-50">
+      <UIcon name="i-lucide-mail" class="w-12 h-12 mx-auto mb-2" />
+      <p>Wähle eine Anfrage aus</p>
+    </div>
   </UDashboardPanel>
 </template>
