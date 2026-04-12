@@ -70,7 +70,6 @@ async function handleDelete() {
     });
   }
 }
-
 </script>
 
 <template>
