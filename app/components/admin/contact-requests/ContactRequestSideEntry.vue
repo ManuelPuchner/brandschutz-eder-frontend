@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { ContactRequest } from "~/types/contact";
-import { UBadge } from '#components'
+import { UBadge } from "#components";
 defineProps<{
   request: ContactRequest;
 }>();
 
-type BadgeProps = InstanceType<typeof UBadge>['$props']
+type BadgeProps = InstanceType<typeof UBadge>["$props"];
 
 function getColor(status: ContactRequest["status"]): BadgeProps["color"] {
   switch (status) {
@@ -46,10 +46,7 @@ function getColor(status: ContactRequest["status"]): BadgeProps["color"] {
           })
         }}
       </p>
-      <UBadge
-        :color="getColor(request.status)"
-        variant="soft"
-      >
+      <UBadge :color="getColor(request.status)" variant="soft">
         {{ request.status }}
       </UBadge>
     </div>

@@ -5,12 +5,12 @@ import { submitContactRequest } from "~/services/contact-service";
 export function useContactForm() {
   const { contactActions } = useContactRequest();
   const contactForm = reactive<Omit<ContactRequest, "id">>({
-      name: "",
-      email: "",
-      phone: "",
-      company: "",
-      message: "",
-      status: "NEW"
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    message: "",
+    status: "NEW",
   });
 
   const toast = reactive({

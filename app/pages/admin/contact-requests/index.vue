@@ -13,7 +13,7 @@ const requests = ref<ContactRequest[]>(rawRequests.value ?? []);
 const selectedRequest = ref<ContactRequest | null>(null);
 
 /**
- * Status priority weight. 
+ * Status priority weight.
  * Higher number = Higher in the list (Descending).
  */
 const STATUS_WEIGHTS: Record<ContactRequest["status"], number> = {
@@ -34,7 +34,7 @@ const sortedRequests = computed(() => {
     const weightA = STATUS_WEIGHTS[a.status] ?? 0;
     const weightB = STATUS_WEIGHTS[b.status] ?? 0;
     const statusDiff = weightB - weightA;
-    
+
     if (statusDiff !== 0) return statusDiff;
 
     // 2. Sort by Date (Newest first)
@@ -45,9 +45,13 @@ const sortedRequests = computed(() => {
   });
 });
 
-watch(rawRequests, (val) => {
-  if (val) requests.value = val;
-}, { immediate: true });
+watch(
+  rawRequests,
+  (val) => {
+    if (val) requests.value = val;
+  },
+  { immediate: true },
+);
 
 // ── Actions ───────────────────────────────────────────────────────────────────
 
@@ -57,10 +61,10 @@ watch(rawRequests, (val) => {
 function updateLocalRequest(id: number, patch: Partial<ContactRequest>) {
   requests.value = requests.value.map((r) => {
     if (r.id === id) {
-      // Cast to 'any' then back to 'ContactRequest' is a common shortcut 
+      // Cast to 'any' then back to 'ContactRequest' is a common shortcut
       // when patching strictly typed objects, or use the explicit spread:
       const updated: ContactRequest = { ...r, ...patch } as ContactRequest;
-      
+
       if (selectedRequest.value?.id === id) {
         selectedRequest.value = updated;
       }
@@ -72,7 +76,7 @@ function updateLocalRequest(id: number, patch: Partial<ContactRequest>) {
 
 async function updateStatus(
   request: ContactRequest,
-  newStatus: ContactRequest["status"]
+  newStatus: ContactRequest["status"],
 ) {
   if (request.status === newStatus || !request.id) return;
 
@@ -121,9 +125,9 @@ function archiveRequest(request: ContactRequest) {
           :key="request.id"
           class="cursor-pointer transition-colors"
           :class="[
-            selectedRequest?.id === request.id 
-              ? 'bg-primary-50 dark:bg-primary-950/20' 
-              : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
+            selectedRequest?.id === request.id
+              ? 'bg-primary-50 dark:bg-primary-950/20'
+              : 'hover:bg-gray-50 dark:hover:bg-gray-800/50',
           ]"
           @click="selectRequest(request)"
         >
@@ -133,11 +137,7 @@ function archiveRequest(request: ContactRequest) {
     </template>
   </UDashboardPanel>
 
-  <UDashboardPanel
-    v-if="selectedRequest"
-    resizable
-    class="flex-1"
-  >
+  <UDashboardPanel v-if="selectedRequest" resizable class="flex-1">
     <template #header>
       <UDashboardNavbar :title="selectedRequest.name">
         <template #leading>
@@ -175,20 +175,30 @@ function archiveRequest(request: ContactRequest) {
 
         <div class="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Phone</span>
-            <p class="mt-1">{{ selectedRequest.phone || '—' }}</p>
+            <span
+              class="text-xs font-bold text-gray-400 uppercase tracking-wider"
+              >Phone</span
+            >
+            <p class="mt-1">{{ selectedRequest.phone || "—" }}</p>
           </div>
           <div>
-            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Company</span>
-            <p class="mt-1">{{ selectedRequest.company || '—' }}</p>
+            <span
+              class="text-xs font-bold text-gray-400 uppercase tracking-wider"
+              >Company</span
+            >
+            <p class="mt-1">{{ selectedRequest.company || "—" }}</p>
           </div>
         </div>
 
         <USeparator />
 
         <div>
-          <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Message</span>
-          <p class="mt-3 whitespace-pre-wrap leading-relaxed text-gray-700 dark:text-gray-300">
+          <span class="text-xs font-bold text-gray-400 uppercase tracking-wider"
+            >Message</span
+          >
+          <p
+            class="mt-3 whitespace-pre-wrap leading-relaxed text-gray-700 dark:text-gray-300"
+          >
             {{ selectedRequest.message }}
           </p>
         </div>

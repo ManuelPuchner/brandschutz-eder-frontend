@@ -16,7 +16,10 @@ definePageMeta({
     </template>
 
     <template #body>
-      <p>Willkommen im Admin Dashboard. Hier können Sie Ihre Anwendung verwalten und wichtige Metriken anzeigen.</p>
+      <p>
+        Willkommen im Admin Dashboard. Hier können Sie Ihre Anwendung verwalten
+        und wichtige Metriken anzeigen.
+      </p>
     </template>
   </UDashboardPanel>
 </template>

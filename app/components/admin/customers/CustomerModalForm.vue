@@ -145,13 +145,21 @@ function resetForm() {
         </UFormField>
         <div class="grid grid-cols-1 md:grid-cols-3 md:gap-4">
           <UFormField name="address" label="Address">
-            <UInput v-model="state.address" placeholder="Address" class="w-full" />
+            <UInput
+              v-model="state.address"
+              placeholder="Address"
+              class="w-full"
+            />
           </UFormField>
           <UFormField name="city" label="City">
             <UInput v-model="state.city" placeholder="City" class="w-full" />
           </UFormField>
           <UFormField name="postalcode" label="Postal Code">
-            <UInput v-model="state.postalcode" placeholder="Postal Code" class="w-full" />
+            <UInput
+              v-model="state.postalcode"
+              placeholder="Postal Code"
+              class="w-full"
+            />
           </UFormField>
         </div>
         <UFormField name="country" label="Country">

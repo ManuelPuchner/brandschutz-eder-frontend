@@ -1,12 +1,10 @@
 export default defineNuxtPlugin((nuxtApp) => {
-  const config = useRuntimeConfig()
+  const config = useRuntimeConfig();
 
   const api = $fetch.create({
-    // THE FIX: On refresh (SSR), use the full URL. 
+    // THE FIX: On refresh (SSR), use the full URL.
     // In the browser, use the /spring proxy.
-    baseURL: import.meta.env.SSR 
-      ? config.backendUrl 
-      : config.public.apiBase,
+    baseURL: import.meta.env.SSR ? config.backendUrl : config.public.apiBase,
 
     async onRequest({ options }) {
       // Add global headers here (e.g., Auth)
@@ -14,14 +12,14 @@ export default defineNuxtPlugin((nuxtApp) => {
     },
 
     async onResponseError({ response }) {
-      console.error(`[API Error ${response.status}]:`, response._data)
-    }
-  })
+      console.error(`[API Error ${response.status}]:`, response._data);
+    },
+  });
 
   // This makes $api available globally via useNuxtApp()
   return {
     provide: {
-      api
-    }
-  }
-})
+      api,
+    },
+  };
+});
