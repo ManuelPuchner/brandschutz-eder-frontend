@@ -124,14 +124,9 @@ function archiveRequest(request: ContactRequest) {
           v-for="request in sortedRequests"
           :key="request.id"
           class="cursor-pointer transition-colors"
-          :class="[
-            selectedRequest?.id === request.id
-              ? 'bg-primary-50 dark:bg-primary-950/20'
-              : 'hover:bg-gray-50 dark:hover:bg-gray-800/50',
-          ]"
           @click="selectRequest(request)"
         >
-          <ContactRequestSideEntry :request="request" />
+          <ContactRequestSideEntry :request="request" :is-selected="selectedRequest?.id === request.id"/>
         </div>
       </div>
     </template>

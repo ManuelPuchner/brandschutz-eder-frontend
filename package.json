@@ -17,6 +17,7 @@
     "i18n-iso-countries": "^7.14.0",
     "libphonenumber-js": "^1.12.41",
     "nuxt": "^4.4.2",
+    "nuxt-auth-utils": "^0.5.29",
     "nuxt-maplibre": "^1.2.2",
     "tailwindcss": "^4.2.2",
     "zod": "^4.3.6"

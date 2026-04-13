@@ -3,6 +3,7 @@ import type { ContactRequest } from "~/types/contact";
 import { UBadge } from "#components";
 defineProps<{
   request: ContactRequest;
+  isSelected: boolean;
 }>();
 
 type BadgeProps = InstanceType<typeof UBadge>["$props"];
@@ -21,7 +22,10 @@ function getColor(status: ContactRequest["status"]): BadgeProps["color"] {
 
 <template>
   <div
-    class="flex items-center my-2 justify-between py-4 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg px-4"
+    :class="[
+      'flex items-center my-2 justify-between py-4 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg px-4',
+      isSelected ? 'bg-neutral-50 dark:bg-neutral-950/20' : '',
+    ]"
   >
     <div>
       <p class="font-medium text-gray-800 dark:text-gray-200">
