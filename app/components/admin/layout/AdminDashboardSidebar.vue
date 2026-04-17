@@ -1,23 +1,37 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from "@nuxt/ui";
 
+const { clearToken } = useAuth();
+const router = useRouter();
+
 const items: NavigationMenuItem[] = [
   {
     label: "Dashboard",
-    icon: "i-heroicons-chart-bar-20-solid",
+    icon: "i-lucide-chart-bar",
     to: "/admin",
   },
   {
     label: "Kontaktanfragen",
-    icon: "i-heroicons-envelope-solid",
+    icon: "i-lucide-mail",
     to: "/admin/contact-requests",
     name: "Kontaktanfragen",
   },
   {
     label: "Kunden",
-    icon: "i-heroicons-users-solid",
+    icon: "i-lucide-users",
     to: "/admin/customers",
     name: "Kunden",
+  },
+];
+
+const bottomItems: NavigationMenuItem[] = [
+  {
+    label: "Logout",
+    icon: "i-lucide-arrow-left-from-line",
+    onSelect: () => {
+      clearToken();
+      router.push("/admin/login");
+    },
   },
 ];
 </script>
@@ -49,6 +63,16 @@ const items: NavigationMenuItem[] = [
         :items="items"
         :collapsed="collapsed"
         orientation="vertical"
+      />
+      <div class="flex-1"></div>
+      <UNavigationMenu
+        :items="bottomItems"
+        :collapsed="collapsed"
+        orientation="vertical"
+        :ui="{
+          link: 'text-red-500',
+          linkLeadingIcon: 'text-red-500',
+        }"
       />
     </template>
   </UDashboardSidebar>
